@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from PIL import Image, ImageTk
 import cv2
 
 class ImageProcessorApp:
@@ -16,12 +17,30 @@ class ImageProcessorApp:
         self.detect_shapes_button = tk.Button(master, text="Обнаружить формы", command=self.detect_shapes)
         self.detect_shapes_button.pack()
 
+        self.image_label = tk.Label(master)
+        self.image_label.pack()
+
         self.image_path = ""
+        self.processed_image = None
 
     def select_image(self):
-        self.image_path = filedialog.askopenfilename(title="Выберите изображение",  filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.bmp")])
+        self.image_path = filedialog.askopenfilename(title="Выберите изображение", filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.bmp")])
         if self.image_path:
             print(f"Выбрано изображение: {self.image_path}")
+            self.show_image(self.image_path)
+
+    def show_image(self, path):
+        image = cv2.imread(path)
+        if image is None:
+            messagebox.showerror("Ошибка", "Не удалось загрузить изображение. Проверьте путь.")
+            return
+
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = Image.fromarray(image)
+        image = ImageTk.PhotoImage(image)
+
+        self.image_label.config(image=image)
+        self.image_label.image = image
 
     def detect_shapes(self):
         if not self.image_path:
@@ -46,10 +65,7 @@ class ImageProcessorApp:
             elif len(approx) == 4:
                 x, y, w, h = cv2.boundingRect(approx)
                 aspect_ratio = float(w) / h
-                if 0.95 <= aspect_ratio <= 1.05:
-                    shape = "Square"
-                else:
-                    shape = "Rectangle"
+                shape = "Square" if 0.95 <= aspect_ratio <= 1.05 else "Rectangle"
             elif len(approx) == 5:
                 shape = "Pentagon"
             elif len(approx) == 6:
@@ -64,10 +80,16 @@ class ImageProcessorApp:
                 cy = int(M["m01"] / M["m00"])
                 cv2.putText(image, shape, (cx, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-        cv2.imshow('Shape Detection', image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        self.processed_image = image
+        self.show_detected_image(image)
 
+    def show_detected_image(self, image):
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = Image.fromarray(image)
+        image = ImageTk.PhotoImage(image)
+
+        self.image_label.config(image=image)
+        self.image_label.image = image
 
 if __name__ == "__main__":
     root = tk.Tk()
