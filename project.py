@@ -65,7 +65,10 @@ class ImageProcessorApp:
             elif len(approx) == 4:
                 x, y, w, h = cv2.boundingRect(approx)
                 aspect_ratio = float(w) / h
-                shape = "Square" if 0.95 <= aspect_ratio <= 1.05 else "Rectangle"
+                if 0.95 <= aspect_ratio <= 1.05:
+                    shape = "Square"
+                else:
+                    shape = "Rectangle"
             elif len(approx) == 5:
                 shape = "Pentagon"
             elif len(approx) == 6:
