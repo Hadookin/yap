@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
 import cv2
 
+
 class ImageProcessorApp:
     def __init__(self, master):
         self.master = master
@@ -24,7 +25,8 @@ class ImageProcessorApp:
         self.processed_image = None
 
     def select_image(self):
-        self.image_path = filedialog.askopenfilename(title="Выберите изображение", filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.bmp")])
+        self.image_path = filedialog.askopenfilename(title="Выберите изображение",
+                                                     filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.bmp")])
         if self.image_path:
             print(f"Выбрано изображение: {self.image_path}")
             self.show_image(self.image_path)
@@ -93,6 +95,7 @@ class ImageProcessorApp:
 
         self.image_label.config(image=image)
         self.image_label.image = image
+
 
 if __name__ == "__main__":
     root = tk.Tk()
