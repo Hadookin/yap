@@ -1,6 +1,6 @@
-pip install opencv-python
-pip install numpy
-pip install tkinter
-pip install ultralytics
-pip install art
-pip install pillow
+opencv-python~=4.11.0.86
+pillow~=11.2.1
+numpy
+ultralytics
+art
+tkinter

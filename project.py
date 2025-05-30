@@ -1,7 +1,14 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
+import numpy as np
 import cv2
+
+def imread_unicode(path):
+    pil_image = Image.open(path).convert('RGB')
+    open_cv_image = np.array(pil_image)
+    open_cv_image = cv2.cvtColor(open_cv_image, cv2.COLOR_RGB2BGR)
+    return open_cv_image
 
 
 class ImageProcessorApp:
@@ -12,11 +19,13 @@ class ImageProcessorApp:
         self.label = tk.Label(master, text="Выберите изображение для обработки:")
         self.label.pack()
 
-        self.select_button = tk.Button(master, text="Выбрать изображение", command=self.select_image)
-        self.select_button.pack()
+        self.select_button = tk.Button(master, text="Выбрать изображение",
+                                       command=self.select_image, bg="lightblue", fg="black")
+        self.select_button.pack(pady=5)
 
-        self.detect_shapes_button = tk.Button(master, text="Обнаружить формы", command=self.detect_shapes)
-        self.detect_shapes_button.pack()
+        self.detect_shapes_button = tk.Button(master, text="Обнаружить формы",
+                                              command=self.detect_shapes, bg="lightgreen", fg="black")
+        self.detect_shapes_button.pack(pady=5)
 
         self.image_label = tk.Label(master)
         self.image_label.pack()
@@ -29,27 +38,26 @@ class ImageProcessorApp:
                                                      filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.bmp")])
         if self.image_path:
             print(f"Выбрано изображение: {self.image_path}")
-            self.show_image(self.image_path)
+            image = imread_unicode(self.image_path)
+            if image is None:
+                messagebox.showerror("Ошибка", "Не удалось загрузить изображение. Проверьте путь.")
+                return
+            self.show_image_cv(image)
 
-    def show_image(self, path):
-        image = cv2.imread(path)
-        if image is None:
-            messagebox.showerror("Ошибка", "Не удалось загрузить изображение. Проверьте путь.")
-            return
+    def show_image_cv(self, image):
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        pil_image = Image.fromarray(image_rgb)
+        photo = ImageTk.PhotoImage(pil_image)
 
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        image = Image.fromarray(image)
-        image = ImageTk.PhotoImage(image)
-
-        self.image_label.config(image=image)
-        self.image_label.image = image
+        self.image_label.config(image=photo)
+        self.image_label.image = photo
 
     def detect_shapes(self):
         if not self.image_path:
             messagebox.showwarning("Предупреждение", "Пожалуйста, выберите изображение сначала.")
             return
 
-        image = cv2.imread(self.image_path)
+        image = imread_unicode(self.image_path)
         if image is None:
             messagebox.showerror("Ошибка", "Не удалось загрузить изображение. Проверьте путь.")
             return
